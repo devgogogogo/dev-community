@@ -16,4 +16,22 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true #?? ??? ??? ??? SQL? ??? ?????? ????.
+        format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-authentication-method: client_secret_post #토큰 교환할 때 클라이언트 인증 방식을 POST 바디로 보낸다는 의미. 사실상 고정 추천
+            authorization-grant-type: authorization_code #표준 OAuth2의 Authorization Code 플로우 사용(가장 일반적/보안적).
+            redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}" #로그인 완료 후 되돌아올 콜백 주소 패턴. #카카오 콘솔의 Redirect URI도 동일하게 바꿔야 함.
+            scope: profile_nickname, profile_image, account_email  #카카오에서 요청할 사용자 정보 권한.
+            client-name: Kakao #이 등록의 표시 이름(로그인 버튼 등에 쓰일 수 있음).👉 변경 가능: 순수 라벨.
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize #인가 코드 받는 URL(사용자가 로그인/동의하는 화면). 👉 카카오 고정값(변경 불가)
+            token-uri: https://kauth.kakao.com/oauth/token #인가 코드 → 액세스 토큰 교환하는 서버 주소. 👉 카카오 고정값(변경 불가)
+            user-info-uri: https://kapi.kakao.com/v2/user/me #액세스 토큰으로 사용자 정보 가져오는 API. 👉 카카오 고정값(변경 불가)
+            user-name-attribute: id
