@@ -18,12 +18,13 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/success", "/css/**", "/js/**", "/images/**", "/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers("/v1/api/posts/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/success", true)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")

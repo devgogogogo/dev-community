@@ -1,6 +1,7 @@
 package com.fastcampus.devcommunity.domain.post.entity;
 
 import com.fastcampus.devcommunity.common.BaseEntity;
+import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,8 +23,14 @@ public class PostEntity extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    public PostEntity(String title, String content) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private UserEntity author;
+
+
+    public PostEntity(String title, String content, UserEntity author) {
         this.title = title;
         this.content = content;
+        this.author = author;
     }
 }

@@ -41,9 +41,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // 5️⃣ 개별 값 추출
-        String kakaoId = null;
+        Long kakaoId = null;
         if (attrs != null && attrs.get("id") != null) {
-            kakaoId = String.valueOf(attrs.get("id"));
+            kakaoId = Long.valueOf(attrs.get("id").toString());
         }
 
         String nickname = null;
@@ -56,8 +56,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             email = kakaoAccount.get("email").toString();
         }
 
-
         // 6️⃣ DB 저장 또는 업데이트
+        // 멱등성을 보장할수있다. kakaoId 가 지금 unique한 상태이기 때문이다.
         userService.saveOrUpdate(kakaoId, nickname, email);
 
         // 7️⃣ 원래의 OAuth2User 객체 반환 (세션 저장용)

@@ -8,6 +8,7 @@ import com.fastcampus.devcommunity.domain.post.dto.response.ListGetPostResponse;
 import com.fastcampus.devcommunity.domain.post.entity.PostEntity;
 import com.fastcampus.devcommunity.domain.post.exception.PostErrorCode;
 import com.fastcampus.devcommunity.domain.post.repository.PostRepository;
+import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +22,8 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Transactional
-    public CreatePostResponse createPost(CreatePostRequest request) {
-        PostEntity postEntity = new PostEntity(request.title(), request.content());
+    public CreatePostResponse createPost(UserEntity entity, CreatePostRequest request) {
+        PostEntity postEntity = new PostEntity(request.title(), request.content(),entity);
         PostEntity saved = postRepository.save(postEntity);
         return new CreatePostResponse(saved.getTitle(), saved.getContent());
     }

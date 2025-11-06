@@ -24,7 +24,6 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            client-authentication-method: client_secret_post #토큰 교환할 때 클라이언트 인증 방식을 POST 바디로 보낸다는 의미. 사실상 고정 추천
             authorization-grant-type: authorization_code #표준 OAuth2의 Authorization Code 플로우 사용(가장 일반적/보안적).
             redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}" #로그인 완료 후 되돌아올 콜백 주소 패턴. #카카오 콘솔의 Redirect URI도 동일하게 바꿔야 함.
             scope: profile_nickname, profile_image, account_email  #카카오에서 요청할 사용자 정보 권한.

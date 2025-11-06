@@ -12,24 +12,33 @@ import java.util.Map;
 public class ViewController {
 
     @GetMapping("/")
-    public String home() { return "index"; }
+    public String home() {
+        return "index";
+    }
 
     @GetMapping("/success")
     public String success(@AuthenticationPrincipal OAuth2User user, Model model) {
 
-        Map<String, Object> kakaoAccount = null;
-        Map<String, Object> profile = null;
         String nickname = "unknown";
 
-        // 로그인된 사용자인 경우
         if (user != null) {
-            kakaoAccount = (Map<String, Object>) user.getAttributes().get("kakao_account");
+            // 카카오에서 내려준 전체 attribute 맵
+            Map<String, Object> attrs =  user.getAttributes();
 
-            if (kakaoAccount != null) {
-                profile = (Map<String, Object>) kakaoAccount.get("profile");
-
+            // 1️⃣ kakao_account → profile → nickname (표준 구조)
+            Map<String, Object> account = (Map<String, Object>) attrs.get("kakao_account");
+            if (account != null) {
+                Map<String, Object> profile = (Map<String, Object>) account.get("profile");
                 if (profile != null && profile.get("nickname") != null) {
                     nickname = profile.get("nickname").toString();
+                }
+            }
+
+            // 2️⃣ fallback: properties.nickname (예전 구조 또는 카카오 계정별 차이)
+            if ("unknown".equals(nickname)) {
+                Map<String, Object> props = (Map<String, Object>) attrs.get("properties");
+                if (props != null && props.get("nickname") != null) {
+                    nickname = props.get("nickname").toString();
                 }
             }
         }
