@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
     open-in-view: false
     properties:
@@ -34,3 +34,5 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token #인가 코드 → 액세스 토큰 교환하는 서버 주소. 👉 카카오 고정값(변경 불가)
             user-info-uri: https://kapi.kakao.com/v2/user/me #액세스 토큰으로 사용자 정보 가져오는 API. 👉 카카오 고정값(변경 불가)
             user-name-attribute: id
+app:
+  bootstrap-admin-kakao-id: 4530957092
