@@ -1,6 +1,7 @@
 package com.fastcampus.devcommunity.domain.post.controller;
 
 import com.fastcampus.devcommunity.domain.post.dto.request.CreatePostRequest;
+import com.fastcampus.devcommunity.domain.post.dto.request.UpdatePostRequest;
 import com.fastcampus.devcommunity.domain.post.dto.response.CreatePostResponse;
 import com.fastcampus.devcommunity.domain.post.dto.response.GetPostResponse;
 import com.fastcampus.devcommunity.domain.post.dto.response.ListGetPostResponse;
@@ -57,6 +58,41 @@ public class PostController {
     public ResponseEntity<GetPostResponse> getPostById(@PathVariable Long postId) {
         GetPostResponse response = postService.getPostById(postId);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<GetPostResponse> updatePost(
+            @PathVariable Long postId,
+            @RequestBody UpdatePostRequest request,
+            @AuthenticationPrincipal OAuth2User user
+    ) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long kakaoId = extractKakaoId(user);
+        if (kakaoId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        GetPostResponse response = postService.updatePost(postId, kakaoId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal OAuth2User user
+    ) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long kakaoId = extractKakaoId(user);
+        if (kakaoId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        postService.deletePost(postId, kakaoId);
+        return ResponseEntity.noContent().build(); // 204
     }
 
 //    Long id = (Long) user.getAttributes().get("id");

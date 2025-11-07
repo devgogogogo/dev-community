@@ -1,9 +1,11 @@
 package com.fastcampus.devcommunity.domain.user.service;
 
+import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +15,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    //네가 브라우저에서 /oauth2/authorization/kakao 로 접속 →
-    //카카오 로그인 성공 → 카카오가 redirect_uri로 code 를 보내줌 →
-    //스프링 시큐리티가 그 code로 access token을 받고 →
-    //그다음 카카오 사용자 정보를 불러오기 위해 자동으로 loadUser()를 호출합니다.
     private final UserService userService;
 
     @Override
@@ -24,19 +22,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 1️⃣ 카카오에서 사용자 정보 가져오기
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 2️⃣ 사용자 전체 속성(attribute) 맵
+        // 2️⃣ 전체 속성(attribute)
         Map<String, Object> attrs = oAuth2User.getAttributes();
 
-        // 3️⃣ kakao_account 객체 꺼내기
+        // 3️⃣ kakao_account 꺼내기
         Map<String, Object> kakaoAccount = null;
-        if (attrs != null && attrs.get("kakao_account") != null) {
+        if (attrs != null && attrs.get("kakao_account") instanceof Map) {
             kakaoAccount = (Map<String, Object>) attrs.get("kakao_account");
         }
 
-
-        // 4️⃣ kakao_account 안의 profile 객체 꺼내기
+        // 4️⃣ profile 꺼내기
         Map<String, Object> profile = null;
-        if (kakaoAccount != null && kakaoAccount.get("profile") != null) {
+        if (kakaoAccount != null && kakaoAccount.get("profile") instanceof Map) {
             profile = (Map<String, Object>) kakaoAccount.get("profile");
         }
 
@@ -57,10 +54,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // 6️⃣ DB 저장 또는 업데이트
-        // 멱등성을 보장할수있다. kakaoId 가 지금 unique한 상태이기 때문이다.
-        userService.saveOrUpdate(kakaoId, nickname, email);
+        UserEntity user = userService.saveOrUpdate(kakaoId, nickname, email);
 
-        // 7️⃣ 원래의 OAuth2User 객체 반환 (세션 저장용)
-        return oAuth2User;
+        // 7️⃣ nameAttributeKey 가져오기 (카카오 기본은 "id")
+        String nameKey = userRequest.getClientRegistration()
+                .getProviderDetails()
+                .getUserInfoEndpoint()
+                .getUserNameAttributeName();
+
+        // 8️⃣ 권한은 UserEntity가 이미 getAuthorities()로 제공하므로 그대로 사용
+        return new DefaultOAuth2User(user.getAuthorities(), attrs, nameKey);
     }
 }
