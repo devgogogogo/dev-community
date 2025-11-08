@@ -1,6 +1,8 @@
 package com.fastcampus.devcommunity.domain.user.service;
 
+import com.fastcampus.devcommunity.domain.user.dto.KakaoUserInfo;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -16,53 +18,46 @@ import java.util.Map;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 1️⃣ 카카오에서 사용자 정보 가져오기
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+    public OAuth2User loadUser(OAuth2UserRequest userRequest)
+            throws OAuth2AuthenticationException {
 
-        // 2️⃣ 전체 속성(attribute)
+        // 1️⃣ 카카오 사용자 정보 불러오기
+        OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attrs = oAuth2User.getAttributes();
 
-        // 3️⃣ kakao_account 꺼내기
-        Map<String, Object> kakaoAccount = null;
-        if (attrs != null && attrs.get("kakao_account") instanceof Map) {
-            kakaoAccount = (Map<String, Object>) attrs.get("kakao_account");
-        }
+        // 2️⃣ DTO 매핑 (record 구조)
+        KakaoUserInfo info = objectMapper.convertValue(attrs, KakaoUserInfo.class);
 
-        // 4️⃣ profile 꺼내기
-        Map<String, Object> profile = null;
-        if (kakaoAccount != null && kakaoAccount.get("profile") instanceof Map) {
-            profile = (Map<String, Object>) kakaoAccount.get("profile");
-        }
-
-        // 5️⃣ 개별 값 추출
+        // 3️⃣ 값 추출
         Long kakaoId = null;
-        if (attrs != null && attrs.get("id") != null) {
-            kakaoId = Long.valueOf(attrs.get("id").toString());
-        }
-
-        String nickname = null;
-        if (profile != null && profile.get("nickname") != null) {
-            nickname = profile.get("nickname").toString();
-        }
-
         String email = null;
-        if (kakaoAccount != null && kakaoAccount.get("email") != null) {
-            email = kakaoAccount.get("email").toString();
+        String nickname = null;
+
+        if (info != null) {
+            kakaoId = info.id();
+
+            if (info.kakaoAccount() != null) {
+                email = info.kakaoAccount().email();
+
+                if (info.kakaoAccount().profile() != null) {
+                    nickname = info.kakaoAccount().profile().nickName();
+                }
+            }
         }
 
-        // 6️⃣ DB 저장 또는 업데이트
+        // 4️⃣ DB 저장 또는 갱신
         UserEntity user = userService.saveOrUpdate(kakaoId, nickname, email);
 
-        // 7️⃣ nameAttributeKey 가져오기 (카카오 기본은 "id")
+        // 5️⃣ kakao 설정의 user-name-attribute (일반적으로 "id")
         String nameKey = userRequest.getClientRegistration()
                 .getProviderDetails()
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        // 8️⃣ 권한은 UserEntity가 이미 getAuthorities()로 제공하므로 그대로 사용
+        // 6️⃣ SecurityContext에 올릴 OAuth2User 반환
         return new DefaultOAuth2User(user.getAuthorities(), attrs, nameKey);
     }
 }

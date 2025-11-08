@@ -7,6 +7,7 @@ import com.fastcampus.devcommunity.domain.post.dto.response.GetPostResponse;
 import com.fastcampus.devcommunity.domain.post.dto.response.ListGetPostResponse;
 import com.fastcampus.devcommunity.domain.post.service.PostService;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
+import com.fastcampus.devcommunity.domain.user.kakao.KakaoService;
 import com.fastcampus.devcommunity.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,25 +25,18 @@ public class PostController {
 
     private final PostService postService;
     private final UserService userService;
+    private final KakaoService kakaoService;
 
     @PostMapping()
     public ResponseEntity<CreatePostResponse> createPost(
             @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal OAuth2User user) {
-        // 1️⃣ 로그인 사용자 확인
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         // 2️⃣ 카카오 ID 추출 (Long 변환)
-        Long kakaoId = extractKakaoId(user);
-        if (kakaoId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        Long kakaoId = kakaoService.extractKakaoId(user);
 
         // 3️⃣ DB에서 해당 사용자 찾기
         UserEntity author = userService.findByKakaoId(kakaoId);
-
 
         CreatePostResponse response = postService.createPost(author,request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -66,14 +60,7 @@ public class PostController {
             @RequestBody UpdatePostRequest request,
             @AuthenticationPrincipal OAuth2User user
     ) {
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        Long kakaoId = extractKakaoId(user);
-        if (kakaoId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+        Long kakaoId = kakaoService.extractKakaoId(user);
         GetPostResponse response = postService.updatePost(postId, kakaoId, request);
         return ResponseEntity.ok(response);
     }
@@ -83,32 +70,8 @@ public class PostController {
             @PathVariable Long postId,
             @AuthenticationPrincipal OAuth2User user
     ) {
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        Long kakaoId = extractKakaoId(user);
-        if (kakaoId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+        Long kakaoId = kakaoService.extractKakaoId(user);
         postService.deletePost(postId, kakaoId);
         return ResponseEntity.noContent().build(); // 204
-    }
-
-//    Long id = (Long) user.getAttributes().get("id");
-    //kakaoId 추출하기
-    private Long extractKakaoId(OAuth2User user) {
-        Object id = user.getAttributes().get("id");
-        if (id == null) return null;
-
-        if (id instanceof Number) {
-            return ((Number) id).longValue();
-        } else {
-            try {
-                return Long.parseLong(id.toString());
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
     }
 }
