@@ -1,5 +1,6 @@
 package com.fastcampus.devcommunity.domain.user.entity;
 
+import com.fastcampus.devcommunity.common.BaseEntity;
 import com.fastcampus.devcommunity.domain.user.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,8 +13,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserEntity implements UserDetails {
+public class UserEntity extends BaseEntity implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +24,12 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private Long kakaoId;
 
-    private String nickname;
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private String nickname;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,8 +44,12 @@ public class UserEntity implements UserDetails {
         this.role = Role.USER;
     }
 
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
+    }
+
     // ✨ 필요하다면 setter 대신 update 메서드 제공
-    public void update(String nickname, String email,Long kakaoId) {
+    public void update(String nickname, String email, Long kakaoId) {
         this.nickname = nickname;
         this.email = email;
         this.kakaoId = kakaoId;

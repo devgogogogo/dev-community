@@ -1,8 +1,110 @@
-<!doctype html>
-<html lang="ko">
-<head><meta charset="utf-8"><title>홈</title></head>
-<body>
-<h1>Dev Community</h1>
-<a href="/oauth2/authorization/kakao">카카오로 로그인</a>
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DevCommunity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+<!-- 상단 헤더 -->
+<header class="bg-slate-900 text-white">
+    <div class="mx-auto max-w-5xl flex items-center justify-between px-5 py-3">
+        <div class="font-bold text-lg">
+            DevCommunity
+        </div>
+
+        <!-- 로그인 상태 -->
+        <div th:if="${loggedIn}" class="text-sm space-x-2">
+            <span th:text="${nickname}" class="font-semibold">닉네임</span>
+            <span>님 |</span>
+            <a href="/logout" class="underline-offset-2 hover:underline">
+                로그아웃
+            </a>
+        </div>
+
+        <!-- 비로그인 상태 -->
+        <div th:if="${!loggedIn}" class="text-sm">
+            <a href="/login" class="underline-offset-2 hover:underline">
+                로그인
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 컨테이너 -->
+<main class="mx-auto max-w-5xl px-4 py-10">
+    <div class="bg-white rounded-xl shadow-md px-6 py-8">
+
+        <h1 class="text-2xl font-bold mb-4">
+            DevCommunity 홈
+        </h1>
+
+        <!-- 🔐 로그인 사용자용 섹션 -->
+        <section class="space-y-6" th:if="${loggedIn}">
+
+            <!-- 환영 문구 -->
+            <p class="text-slate-700"
+               th:text="|${nickname} 님, DevCommunity에 오신 걸 환영합니다.|">
+                환영 문구
+            </p>
+
+            <!-- 내 정보 카드 -->
+            <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                <h2 class="text-sm font-semibold text-slate-600 mb-2">
+                    내 정보
+                </h2>
+                <div class="space-y-1 text-sm text-slate-800">
+                    <p>
+                        <span class="font-medium">닉네임 :</span>
+                        <span th:text="${nickname}">닉네임</span>
+                    </p>
+                    <p>
+                        <span class="font-medium">이메일 :</span>
+                        <span th:text="${email}">email@example.com</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- attributes 디버그용 -->
+            <div class="border border-dashed border-slate-300 rounded-lg p-4 bg-slate-50">
+                <h2 class="text-sm font-semibold text-slate-600 mb-2">
+                    전체 Attributes (디버그용)
+                </h2>
+                <pre class="text-xs text-slate-700 bg-white border border-slate-200 rounded-md p-3 overflow-x-auto"
+                     th:text="${attributes}">
+                </pre>
+            </div>
+
+            <!-- 앞으로 들어올 기능 안내 -->
+            <div class="pt-2 text-sm text-slate-700">
+                <p>게시판 기능은 현재 준비 중입니다.</p>
+                <p class="mt-1">조만간 로그인한 계정으로 글 작성 / 댓글 기능을 사용할 수 있게 됩니다.</p>
+
+                <a href="/"
+                   class="inline-flex items-center mt-4 px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50">
+                    메인 새로고침
+                </a>
+            </div>
+        </section>
+
+        <!-- 🚪 비로그인 사용자용 섹션 -->
+        <section class="space-y-4" th:if="${!loggedIn}">
+            <p class="text-slate-700">
+                DevCommunity는 개발자를 위한 커뮤니티 서비스입니다.
+            </p>
+            <p class="text-slate-700">
+                카카오 계정으로 간편하게 로그인하고, 추후 제공될 게시판 · 댓글 기능을 이용해 보세요.
+            </p>
+
+            <a href="/login"
+               class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600">
+                카카오로 시작하기
+            </a>
+        </section>
+
+    </div>
+</main>
+
 </body>
 </html>
