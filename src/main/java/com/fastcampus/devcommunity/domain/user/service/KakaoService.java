@@ -1,4 +1,4 @@
-package com.fastcampus.devcommunity.domain.user.kakao;
+package com.fastcampus.devcommunity.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.OAuth2User;

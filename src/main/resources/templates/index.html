@@ -1,8 +1,27 @@
-<!doctype html>
-<html lang="ko">
-<head><meta charset="utf-8"><title>홈</title></head>
 <body>
-<h1>Dev Community</h1>
-<a href="/oauth2/authorization/kakao">카카오로 로그인</a>
+<header>
+    <div><strong>DevCommunity</strong></div>
+
+    <div th:if="${loggedIn}">
+        <span th:text="${nickname}">닉네임</span> 님 |
+        <a href="/logout">로그아웃</a>
+    </div>
+
+    <div th:if="${!loggedIn}">
+        <a href="/login">로그인</a>
+    </div>
+</header>
+
+<div class="container">
+    <h1>환영합니다 👋</h1>
+
+    <div th:if="${loggedIn}">
+        <p th:text="|${nickname} 님, 오늘도 좋은 하루 되세요.|">로그인 사용자 문구</p>
+    </div>
+
+    <div th:if="${!loggedIn}">
+        <p>카카오 로그인 후 커뮤니티 기능을 이용하실 수 있습니다.</p>
+        <a class="btn" href="/login">시작하기</a>
+    </div>
+</div>
 </body>
-</html>
