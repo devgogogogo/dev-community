@@ -43,4 +43,13 @@ public class PostService {
         postEntity.updatePost(request.title(),request.content());
         return PutPostResponse.from(postEntity);
     }
+
+    @Transactional
+    public void deletePost(UserEntity userEntity, Long postId) {
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new BizException(PostErrorCode.POST_NOT_FOUND));
+        if (!postEntity.getUserEntity().getId().equals(userEntity.getId())) {
+            throw new BizException(PostErrorCode.POST_CONFLICT);
+        }
+        postRepository.delete(postEntity);
+    }
 }

@@ -47,4 +47,14 @@ public class PostController {
         PutPostResponse response = postService.putPost(userEntity, postId, request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @PathVariable Long postId
+    ) {
+        UserEntity userEntity = principal.getUserEntity();
+        postService.deletePost(userEntity, postId);
+        return ResponseEntity.noContent().build();
+    }
 }
