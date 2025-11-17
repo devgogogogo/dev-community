@@ -44,13 +44,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userEntity = new UserEntity(kakaoId, email, nickname);
             userRepository.save(userEntity);
         }
-        // 3) 로그인을 했다면
 
         // 권한 생성
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name());
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name());
 
-        return new CustomOAuth2User(Collections.singleton(authority), attributes, userEntity);
+        return new CustomOAuth2User(
+                Collections.singleton(authority),
+                attributes,
+                userEntity
+        );
     }
 }
+
+
 
 
