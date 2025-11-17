@@ -27,7 +27,6 @@ public class UserEntity extends BaseEntity implements UserDetails{
     @Column(nullable = false)
     private String email;
 
-
     @Column(nullable = false)
     private String nickName;
 

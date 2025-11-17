@@ -30,4 +30,8 @@ public class PostEntity {
         this.content = content;
         this.userEntity = userEntity;
     }
+    public void updatePost(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
