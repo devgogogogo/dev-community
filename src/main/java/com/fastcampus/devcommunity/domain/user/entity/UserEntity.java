@@ -27,20 +27,19 @@ public class UserEntity extends BaseEntity implements UserDetails{
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String nickname;
 
+    @Column(nullable = false)
+    private String nickName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
 
 
-    // ✨ id 제외한 생성자
-    public UserEntity(Long kakaoId, String nickname, String email) {
+    public UserEntity(Long kakaoId, String email, String nickName) {
         this.kakaoId = kakaoId;
-        this.nickname = nickname;
         this.email = email;
+        this.nickName = nickName;
         this.role = Role.USER;
     }
 
@@ -50,7 +49,7 @@ public class UserEntity extends BaseEntity implements UserDetails{
 
     // ✨ 필요하다면 setter 대신 update 메서드 제공
     public void update(String nickname, String email, Long kakaoId) {
-        this.nickname = nickname;
+        this.nickName = nickname;
         this.email = email;
         this.kakaoId = kakaoId;
     }

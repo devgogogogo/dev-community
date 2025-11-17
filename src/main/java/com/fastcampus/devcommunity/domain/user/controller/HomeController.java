@@ -3,12 +3,9 @@ package com.fastcampus.devcommunity.domain.user.controller;
 import com.fastcampus.devcommunity.domain.user.entity.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,46 +17,24 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(@AuthenticationPrincipal OAuth2User oAuth2User,
-                       @AuthenticationPrincipal CustomOAuth2User oAuth2CustomUser,
+    public String home(@AuthenticationPrincipal CustomOAuth2User principal,
                        Model model) {
 
-
-        if (oAuth2User != null) {
-            // attributes 전체를 모델에 넣어서 화면에서 찍어보자
-            model.addAttribute("attributes", oAuth2User.getAttributes());
-
-            Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-            Map<String, Object> profile = null;
-
-            if (kakaoAccount != null) {
-                Object profileObj = kakaoAccount.get("profile");
-                if (profileObj instanceof Map) {
-                    profile = (Map<String, Object>) profileObj;
-                }
-            }
-            String nickname = null;
-            if (profile != null) {
-                Object nicknameObj = profile.get("nickname");
-                if (nicknameObj instanceof String) {
-                    nickname = (String) nicknameObj;
-                }
-            }
-            String email = null;
-            if (kakaoAccount != null) {
-                Object emailObj = kakaoAccount.get("email");
-                if (emailObj instanceof String) {
-                    email = (String) emailObj;
-                }
-            }
-            model.addAttribute("loggedIn", true);
-            model.addAttribute("nickname", nickname);
-            model.addAttribute("email", email);
-        } else {
+        // 로그인 안 된 경우
+        if (principal == null) {
             model.addAttribute("loggedIn", false);
+            model.addAttribute("nickname", null);
+            model.addAttribute("email", null);
+            model.addAttribute("attributes", null);
+            return "index";   // templates/index.html
         }
+
+        // 로그인 된 경우
+        model.addAttribute("loggedIn", true);
+        model.addAttribute("nickname", principal.getNickname());
+        model.addAttribute("email", principal.getEmail());
+        model.addAttribute("attributes", principal.getAttributes());
 
         return "index";
     }
-
 }

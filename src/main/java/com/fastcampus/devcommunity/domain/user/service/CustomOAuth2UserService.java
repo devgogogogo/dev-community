@@ -36,6 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = kakaoInfo.kakao_account().email();
         String nickname = kakaoInfo.kakao_account().profile().nickname();
 
+
         // 1) 기존 회원 조회
         UserEntity userEntity = userRepository.findByKakaoId(kakaoId).orElse(null);
 
@@ -46,16 +47,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // 권한 생성
-        SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name());
 
-        return new CustomOAuth2User(
-                Collections.singleton(authority),
-                attributes,
-                userEntity
-        );
+        return new CustomOAuth2User(Collections.singleton(authority), attributes, userEntity);
     }
 }
+
 
 
 

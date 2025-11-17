@@ -35,4 +35,21 @@ public class CustomOAuth2User implements OAuth2User {
         }
         return String.valueOf(userEntity.getKakaoId());
     }
+
+    //여기부턴 편의 메서드라 있어도 그만 없어도 그만
+    public Long getId() {
+        return userEntity.getId();
+    }
+
+    public Long getKakaoId() {
+        return userEntity.getKakaoId();
+    }
+
+    public String getNickname() {
+        return userEntity.getNickName();
+    }
+
+    public String getEmail() {
+        return userEntity.getEmail();
+    }
 }
