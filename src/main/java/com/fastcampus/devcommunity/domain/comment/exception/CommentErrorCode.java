@@ -1,4 +1,4 @@
-package com.fastcampus.devcommunity.domain.post.exception;
+package com.fastcampus.devcommunity.domain.comment.exception;
 
 import com.fastcampus.devcommunity.common.exception.ErrorCode;
 import lombok.Getter;
@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 @Getter
-public enum PostErrorCode implements ErrorCode {
+public enum CommentErrorCode implements ErrorCode {
 
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "게시판이 존재하지 않습니다."),
-    POST_CONFLICT(HttpStatus.CONFLICT, "P002", "수정하려는 게시물의 유저가 일치하지 않습니다.");
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "댓글이 존재하지 않습니다."),
+    COMMENT_NO_PERMISSION(HttpStatus.FORBIDDEN, "C002", "댓글 수정 권한이 없습니다. (작성자 불일치)"),
+    COMMENT_CONFLICT(HttpStatus.CONFLICT, "C003", "다른 요청과 리소스 충돌이 발생했습니다.");
 
 
     private final HttpStatus httpStatus;
