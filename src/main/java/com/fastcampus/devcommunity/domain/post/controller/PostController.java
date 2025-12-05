@@ -9,6 +9,10 @@ import com.fastcampus.devcommunity.domain.post.service.PostService;
 import com.fastcampus.devcommunity.domain.user.entity.CustomOAuth2User;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +39,14 @@ public class PostController {
     ) {
         GetPostResponse response = postService.getPost(postId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<GetPostResponse>> getPosts(
+            @PageableDefault(page = 0,size = 15,sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<GetPostResponse> responses = postService.getPosts(pageable);
+        return ResponseEntity.ok(responses);
     }
 
     @PutMapping("/{postId}")

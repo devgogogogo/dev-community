@@ -12,8 +12,13 @@ import com.fastcampus.devcommunity.domain.post.repository.PostRepository;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +56,14 @@ public class PostService {
             throw new BizException(PostErrorCode.POST_CONFLICT);
         }
         postRepository.delete(postEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<GetPostResponse> getPosts(Pageable pageable) {
+        //fetch join은 페이징을 지원하지 않는다 그래서 일단 List로 뽑아낸후에 new PageImpl을 구현해야한다.
+        List<PostEntity> posts = postRepository.findAllWithUser(pageable);
+        long totalCount = postRepository.countPosts();
+        PageImpl<PostEntity> postPage = new PageImpl<>(posts, pageable, totalCount);
+        return postPage.map(GetPostResponse::from);
     }
 }
