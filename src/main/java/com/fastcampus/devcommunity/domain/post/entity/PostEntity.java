@@ -1,5 +1,6 @@
 package com.fastcampus.devcommunity.domain.post.entity;
 
+import com.fastcampus.devcommunity.common.BaseEntity;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "posts")
-public class PostEntity {
+public class PostEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

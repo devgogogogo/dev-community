@@ -1,37 +1,46 @@
 import http from 'k6/http';
 import { check, sleep, group } from 'k6';
+import { Trend } from 'k6/metrics';
+
+// 그룹별 latency 기록용 커스텀 metric 생성
+export const ALL_DURATION = new Trend('ALL_duration');
+export const PAGE_DURATION = new Trend('PAGE_duration');
 
 export const options = {
-    vus: 5,
-    duration: '10s',
+    vus: 500,             // 가상의 유저(Virtual Users) 500명 동시 실행
+    duration: '20s',    // 테스트를 20초 동안 지속
 };
 
-// 반드시 서비스 이름(app) 사용해야 함!
 const BASE_URL = 'http://app:8080/api/v1/posts';
 
 export default function () {
 
-    group('Sanity Check: /all', () => {
+    group('전체 조회', () => {
+        const start = Date.now();
         const res = http.get(`${BASE_URL}/all`);
+        const end = Date.now();
 
-        // 응답 상태와 HTML 여부 검사 로그 출력
-        console.log('STATUS =', res.status);
-        console.log('BODY START =', res.body.substring(0, 200));
-
-        let jsonBody;
-
-        try {
-            jsonBody = res.json(); // JSON으로 파싱 시도
-        } catch (e) {
-            console.error('JSON PARSE ERROR:', e.message);
-            // HTML이 오면 여기서 걸림 → 테스트 종료
-            return;
-        }
+        ALL_DURATION.add(end - start); // <-- 측정 기록
 
         check(res, {
             'status is 200': (r) => r.status === 200,
-            'not empty list': () =>
-                Array.isArray(jsonBody) && jsonBody.length > 0,
+            'not empty': (r) => r.body.length > 2,
+        });
+
+        sleep(1);
+    });
+
+
+    group('페이징 조회', () => {
+        const start = Date.now();
+        const res = http.get(`${BASE_URL}?page=0&size=15`);
+        const end = Date.now();
+
+        PAGE_DURATION.add(end - start); // <-- 측정 기록
+
+        check(res, {
+            'status is 200': (r) => r.status === 200,
+            'has content': (r) => r.body.includes('"content"'),
         });
 
         sleep(1);
