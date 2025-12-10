@@ -10,7 +10,6 @@ import com.fastcampus.devcommunity.domain.post.entity.PostEntity;
 import com.fastcampus.devcommunity.domain.post.exception.PostErrorCode;
 import com.fastcampus.devcommunity.domain.post.repository.PostRepository;
 import com.fastcampus.devcommunity.domain.user.entity.UserEntity;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,10 +32,16 @@ public class PostService {
         return CreatePostResponse.from(saved);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public GetPostResponse getPost(Long postId) {
         PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new BizException(PostErrorCode.POST_NOT_FOUND));
         return GetPostResponse.from(postEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetPostResponse> getAllPosts() {
+        List<PostEntity> entities = postRepository.findAll();
+        return entities.stream().map(GetPostResponse::from).toList();
     }
 
     @Transactional
@@ -59,11 +64,13 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<GetPostResponse> getPosts(Pageable pageable) {
+    public Page<GetPostResponse> getPagingPosts(Pageable pageable) {
         //fetch join은 페이징을 지원하지 않는다 그래서 일단 List로 뽑아낸후에 new PageImpl을 구현해야한다.
         List<PostEntity> posts = postRepository.findAllWithUser(pageable);
         long totalCount = postRepository.countPosts();
         PageImpl<PostEntity> postPage = new PageImpl<>(posts, pageable, totalCount);
         return postPage.map(GetPostResponse::from);
     }
+
+
 }

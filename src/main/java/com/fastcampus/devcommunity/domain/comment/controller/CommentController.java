@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
@@ -62,7 +64,7 @@ public class CommentController {
 
     ) {
         UserEntity userEntity = principal.getUserEntity();
-        commentService.deleteComment(userEntity,postId,commentId);
+        commentService.deleteComment(userEntity, postId, commentId);
         return ResponseEntity.noContent().build();
     }
 

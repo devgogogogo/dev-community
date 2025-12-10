@@ -17,20 +17,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
+    //전체 조회
+    @GetMapping("/all")
+    public ResponseEntity<List<GetPostResponse>> getAllPosts() {
+        List<GetPostResponse> responses = postService.getAllPosts();
+        return ResponseEntity.ok(responses);
+    }
 
-    @PostMapping
-    public ResponseEntity<CreatePostResponse> createPost(
-            @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestBody CreatePostRequest request) {
-        UserEntity userEntity = principal.getUserEntity();
-        CreatePostResponse response = postService.createPost(userEntity, request);
-        return ResponseEntity.ok(response);
+    //페이징 조회
+    @GetMapping
+    public ResponseEntity<Page<GetPostResponse>> getPagingPosts(
+            @PageableDefault(page = 0,size = 15,sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<GetPostResponse> responses = postService.getPagingPosts(pageable);
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{postId}")
@@ -41,12 +49,13 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<Page<GetPostResponse>> getPosts(
-            @PageableDefault(page = 0,size = 15,sort = "id", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        Page<GetPostResponse> responses = postService.getPosts(pageable);
-        return ResponseEntity.ok(responses);
+    @PostMapping
+    public ResponseEntity<CreatePostResponse> createPost(
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @RequestBody CreatePostRequest request) {
+        UserEntity userEntity = principal.getUserEntity();
+        CreatePostResponse response = postService.createPost(userEntity, request);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{postId}")
